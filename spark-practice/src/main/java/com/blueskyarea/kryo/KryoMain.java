@@ -10,7 +10,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 
 public class KryoMain {
 	
-	private static final int listSize = 1000000;
+	private static final int listSize = 100;
 	private static final StopWatch stopWatch = new StopWatch();
 	
 	public static void main(String[] args) {
