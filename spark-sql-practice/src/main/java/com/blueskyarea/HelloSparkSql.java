@@ -18,7 +18,7 @@ public class HelloSparkSql{
     private void execute() {
     	SparkSession spark = SparkSession
     			  .builder()
-    			  .appName("Java Spark SQL basic example")
+    			  .appName("HelloSparkSql")
     			  .master("local[3]")
     			  .getOrCreate();
     	
