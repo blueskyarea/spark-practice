@@ -8,8 +8,8 @@
 			<PatternLayout pattern="${loglayout}" />
 		</Console>
 		<RollingFile name="ROLL"
-			fileName="/home/mh/workspace/spark/spark-sql-practice/logs/spark-sql-practice.log"
-			filePattern="/home/mh/workspace/spark/spark-sql-practice/logs/spark-sql-practice-%d{yyyy-MM-dd}-%i.zip">
+			fileName="/home/mh/workspace/spark/spark-sql-practice1.6/logs/spark-sql-practice.log"
+			filePattern="/home/mh/workspace/spark/spark-sql-practice1.6/logs/spark-sql-practice-%d{yyyy-MM-dd}-%i.zip">
 			<PatternLayout pattern="${loglayout}" />
 			<Policies>
 				<!-- <OnStartupTriggeringPolicy /> -->
