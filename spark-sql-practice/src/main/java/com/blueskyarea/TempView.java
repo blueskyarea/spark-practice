@@ -37,6 +37,7 @@ public class TempView {
 		logger.info("--- Register the DataFrame as a global temporary view ---");
 		df.createGlobalTempView("people");
 		
+		// without global_temp. will also work
 		spark.sql("SELECT * FROM global_temp.people").show();
 		
 		logger.info("--- Create new session for global temporary view ---");
