@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Properties>
+		<Property name="loglayout">%d %p %m %n</Property>
+	</Properties>
+	<Appenders>
+		<Console name="CONSOLE_OUT">
+			<PatternLayout pattern="${loglayout}" />
+		</Console>
+		<RollingFile name="ROLL"
+			fileName="/home/mh/workspace/JavaLogger/logs/test.log"
+			filePattern="/home/mh/workspace/JavaLogger/logs/test-%d{yyyy-MM-dd}-%i.zip">
+			<PatternLayout pattern="${loglayout}" />
+			<Policies>
+				<!-- <OnStartupTriggeringPolicy /> -->
+				<SizeBasedTriggeringPolicy size="10 MB" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy fileIndex="min" max="7" />
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="CONSOLE_OUT" />
+		</Root>
+		<Logger name="com.blueskyarea.App" level="info" additivity="false">
+			<AppenderRef ref="ROLL" />
+		</Logger>
+	</Loggers>
+</Configuration>
