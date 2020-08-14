@@ -8,10 +8,22 @@
 	<name>spark-practice</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
+		<!--hadoop-minicluster is first to avoid "NoSuchMethodError: com.google.common.base.Preconditions.checkArgument" -->
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-minicluster</artifactId>
+			<version>3.3.0</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.11</artifactId>
-			<version>2.3.0</version>
+			<version>2.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.11</artifactId>
+			<version>2.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
