@@ -5,12 +5,13 @@ import static org.junit.Assert.assertThat;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -24,40 +25,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.spark_project.guava.io.Files;
 
-public class VirtualHDFSTest {
+public class ReadLocalTextTest {
 	private File tempDir;
 	private String filePath;
-	private MiniDFSCluster hdfsCluster;
 	private SparkSession ss;
 	
 	@Before
 	public void setUp() throws IOException {
 		// Create directory
 		tempDir = Files.createTempDir();
+		
 		// Define a text file
 		filePath = tempDir.getAbsolutePath().concat("/file1.txt");
 		
-		// Create virtual HDFS cluster with temporary directory
-		Configuration hadoopConf = new Configuration();
-		hadoopConf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, tempDir.getAbsolutePath());
-		MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(hadoopConf);
-		hdfsCluster = builder.build();
-		
 		// Spark configuration
-		SparkConf sparkConf = new SparkConf().setAppName("VirtualHDFSTest").setMaster("local[*]");
+		SparkConf sparkConf = new SparkConf().setAppName("ReadLocalTextTest").setMaster("local[*]")
+				.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+				.set("spark.io.compression.codec", "lz4");
 		ss = SparkSession.builder().config(sparkConf).getOrCreate();
 	}
 	
 	@After
 	public void cleanup() {
-		ss.close();
-		hdfsCluster.shutdown();
+		if (ss != null) {
+			ss.stop();
+			ss = null;
+		}
 		FileUtil.fullyDelete(tempDir);
 	}
 	
 	@Test
-	public void readTextFile() throws IOException {
-		// Create a text file
+	public void readTextFileTest() {
+		// Create a text file on local
 		createTextFile();
 		
 		// Define the text file schema
@@ -70,21 +69,27 @@ public class VirtualHDFSTest {
 		Dataset<Row> ds = ss.read()
 				.option("header", false)
 				.option("delimiter", "\t")
-				.schema(schema).csv(filePath)
+				.schema(schema).csv(filePath.toString())
 				.cache();
 		
 		assertThat(ds.count(), is(2L));
 		assertThat(ds.filter(ds.col("id").equalTo(1)).first().getAs("message"), is("This is first line."));
 		assertThat(ds.filter(ds.col("id").equalTo(2)).first().getAs("message"), is("This is second line."));
+		ds.show();
 	}
 	
-	private void createTextFile() throws IOException {
-		try (FileWriter writer = new FileWriter(new File(filePath))) {
-			BufferedWriter bw = new BufferedWriter(writer);
-			bw.write("1\tThis is first line.");
-			bw.newLine();
-			bw.write("2\tThis is second line.");
-			bw.flush();
-		}
+	private void createTextFile() {
+		List<String> lines = Stream.of(
+				"1\tThis is first line.",
+				"2\tThis is second line.").collect(Collectors.toList());
+		
+		try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(Paths.get(filePath))) {
+            for (String line : lines) {
+                writer.append(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 }
